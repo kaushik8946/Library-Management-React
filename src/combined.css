@@ -1,23 +1,23 @@
 .container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 30px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
 .message-label {
-    margin-top: 15px;
-    font-weight: bold;
+  margin-top: 15px;
+  font-weight: bold;
 }
 
 .success {
-    color: green;
+  color: green;
 }
 
 .error {
-    color: red;
+  color: red;
 }
 
 body {
@@ -58,12 +58,12 @@ button:hover {
   position: relative;
   margin-left: -50vw;
   margin-right: -50vw;
-  padding-inline: 16px; 
+  padding-inline: 16px;
 }
 
 .issue-container {
   width: 100%;
-  max-width: 1280px; 
+  max-width: 1280px;
   margin: 0 auto;
   text-align: center;
   display: flex;
@@ -72,10 +72,10 @@ button:hover {
 }
 
 .issue-display {
-  flex: 1 1 60%; 
+  flex: 1 1 60%;
   margin-top: 20px;
   text-align: left;
-  min-width: 0;  
+  min-width: 0;
   box-sizing: border-box;
 }
 
@@ -126,80 +126,80 @@ button {
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
 .table-container {
-    max-height: 580px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
+  max-height: 580px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
 }
 
 thead {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background-color: #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f0f0f0;
 }
 
 th,
- td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: left;
+td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
 }
 
 th {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
 button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .update-button {
-    width: 100px;
+  width: 100px;
 }
 
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
 }
 
 .form-container {
-    padding: 30px;
-    width: 400px;
-    text-align: center;
+  padding: 30px;
+  width: 400px;
+  text-align: center;
 }
 
 h2 {
-    color: #333;
-    margin-bottom: 20px;
+  color: #333;
+  margin-bottom: 20px;
 }
 
 .error-message {
-    color: red;
-    font-weight: bold;
-    margin-bottom: 15px;
+  color: red;
+  font-weight: bold;
+  margin-bottom: 15px;
 }
 
 .success-message {
-    color: green;
-    font-weight: bold;
-    margin-bottom: 15px;
+  color: green;
+  font-weight: bold;
+  margin-bottom: 15px;
 }
 
 form label {
-    display: block;
-    text-align: left;
-    margin-bottom: 5px;
-    font-weight: bold;
+  display: block;
+  text-align: left;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 form input[type="text"],
@@ -207,65 +207,66 @@ form input[type="email"],
 form input[type="number"],
 form input[type="submit"],
 form select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
 .gender-options {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    padding: 0 5px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding: 0 5px;
 }
 
 .gender-options label {
-    font-weight: normal;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 form input[type="submit"] {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
 }
 
 form input[type="submit"]:hover {
-    background-color: #2980b9;
+  background-color: #2980b9;
 }
 
 .back-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #7f8c8d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    text-decoration: none;
-    display: inline-block;
-    box-sizing: border-box;
-    transition: background-color 0.3s;
+  width: 100%;
+  padding: 10px;
+  background-color: #7f8c8d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: none;
+  display: inline-block;
+  box-sizing: border-box;
+  transition: background-color 0.3s;
 }
 
 .button-row {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
 }
+
 .button-row {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
 }
