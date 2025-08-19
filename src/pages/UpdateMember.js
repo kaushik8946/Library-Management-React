@@ -89,7 +89,7 @@ function UpdateMember() {
   };
 
   const handleBack = () => {
-    window.location.href = '/';
+    window.location.href = '/viewMembers';
   };
 
   return (
@@ -121,7 +121,7 @@ function UpdateMember() {
         <input type="text" id="address" name="address" required ref={addressRef} />
         <div className="button-row">
           <input type="submit" value="Update Member" />
-          <button type="button" className="back-button" onClick={handleBack}>Back to Main Menu</button>
+          <button type="button" className="back-button" onClick={handleBack}>Back to View Members</button>
         </div>
       </form>
     </div>

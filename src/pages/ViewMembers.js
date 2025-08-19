@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 
 export default function ViewMembers() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selected, setSelected] = useState([]);
+  const [members, setMembers] = useState([])
+  const [records, setRecords] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [selected, setSelected] = useState([])
   const toggleSelect = (id) => {
     setSelected((prev) => {
       const updated = [...prev];
-      const index = updated.indexOf(id);
+      const index = updated.indexOf(id)
 
       if (index !== -1) {
-        updated.splice(index, 1);
+        updated.splice(index, 1)
       } else {
         updated.push(id);
       }
@@ -20,14 +21,33 @@ export default function ViewMembers() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/members/viewMembers")
-      .then((res) => {
-        if (!res.ok) throw new Error(`Error: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => setMembers(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    const load = async () => {
+      try {
+        const responses = await Promise.all([
+          fetch("http://localhost:8080/api/issues/viewIssuedRecords"),
+          fetch("http://localhost:8080/api/members/viewMembers"),
+        ]);
+        const bad = responses.find((r) => !r.ok);
+        if (bad) {
+          const text = await bad.text();
+          throw new Error(`Request failed (${bad.status}): ${text.slice(0, 1000)}`);
+        }
+        const parsed = await Promise.all(responses.map((r) => r.json()));
+        const [recordsData, membersData] = parsed;
+
+        setRecords(recordsData);
+        console.log(recordsData);
+        console.log(membersData);
+        setMembers(membersData);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError(err.message || String(err));
+        alert(err.message);
+        setLoading(false);
+      }
+    };
+    load();
   }, []);
 
   const handleBatchDelete = async () => {
@@ -58,6 +78,10 @@ export default function ViewMembers() {
     }
   }
 
+  const hasTakenBook = (memberId) => {
+    return records.filter(record => record.memberId === memberId && record.status === 'ISSUED').length > 0;
+  }
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
@@ -75,6 +99,7 @@ export default function ViewMembers() {
               <th>Phone</th>
               <th>Gender</th>
               <th>Address</th>
+              <th>Has active issue?</th>
               <th>Created At</th>
               <th>Created By</th>
               <th>Updated At</th>
@@ -98,6 +123,7 @@ export default function ViewMembers() {
                 <td>{member.phoneNumber}</td>
                 <td>{member.gender}</td>
                 <td>{member.address}</td>
+                <td>{hasTakenBook(member.memberID) ? "Yes" : "No"}</td>
                 <td>{member.createdAt}</td>
                 <td>{member.createdBy}</td>
                 <td>{member.updatedAt}</td>

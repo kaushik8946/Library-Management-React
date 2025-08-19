@@ -3,8 +3,6 @@ import React, { useEffect, useState } from "react";
 export default function ViewBooks() {
   const [books, setBooks] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [statusMessage, setStatusMessage] = useState(null);
-  const [statusType, setStatusType] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:8080/api/books/viewBooks")
@@ -109,11 +107,14 @@ export default function ViewBooks() {
 
       alert("Updated successfully");
       setBooks(
-        books.map((b) =>
-          selected.includes(b.bookId)
-            ? { ...b, availability: b.availability === "AVAILABLE" ? "ISSUED" : "AVAILABLE" }
-            : b
-        )
+        books.map((b) => {
+          if (selected.includes(b.bookId)) {
+            const newAvailability = b.availability === "AVAILABLE" ? "ISSUED" : "AVAILABLE";
+            return { ...b, availability: newAvailability };
+          } else {
+            return b;
+          }
+        })
       );
       setSelected([]);
     } catch (err) {
@@ -124,12 +125,6 @@ export default function ViewBooks() {
   return (
     <div className="view-books">
       <h2>All Books</h2>
-
-      {statusMessage && (
-        <p className={`status-message ${statusType}`}>
-          {statusMessage}
-        </p>
-      )}
 
       {books.length === 0 ? (
         <p className="no-books">No books found in the library.</p>

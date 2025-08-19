@@ -125,7 +125,7 @@ function UpdateBook() {
   };
 
   const handleBack = () => {
-    window.location.href = '/';
+    window.location.href = '/viewBooks';
   };
 
   return (
@@ -163,7 +163,7 @@ function UpdateBook() {
 
         <div className="button-row">
           <input type="submit" value="Update Book" />
-          <button type="button" className="back-button" onClick={handleBack}>Back to Main Menu</button>
+          <button type="button" className="back-button" onClick={handleBack}>Back to View Books</button>
         </div>
       </form>
     </div>
