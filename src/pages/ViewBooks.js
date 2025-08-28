@@ -5,12 +5,12 @@ export default function ViewBooks() {
   const [selected, setSelected] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchField, setSearchField] = useState("all");
   const pageSize = 5;
 
   useEffect(() => {
     fetch("http://localhost:8080/api/books/viewBooks")
       .then(async (res) => {
-        const contentType = res.headers.get("content-type");
         if (!res.ok) {
           const errorText = await res.text();
           throw new Error(errorText);
@@ -101,7 +101,6 @@ export default function ViewBooks() {
         alert("Updated successfully");
         fetch("http://localhost:8080/api/books/viewBooks")
           .then(async (res) => {
-            const contentType = res.headers.get("content-type");
             if (!res.ok) {
               const errorText = await res.text();
               throw new Error(errorText);
@@ -131,9 +130,14 @@ export default function ViewBooks() {
   const filteredBooks = books.filter((book) => {
     if (!searchTerm.trim()) return true;
     const term = searchTerm.toLowerCase();
-    return Object.values(book).some((value) =>
-      value && String(value).toLowerCase().includes(term)
-    );
+    if (searchField === "all") {
+      return Object.values(book).some((value) =>
+        value && String(value).toLowerCase().includes(term)
+      );
+    } else {
+      const value = book[searchField];
+      return value && String(value).toLowerCase().includes(term);
+    }
   });
 
   const totalPages = Math.ceil(filteredBooks.length / pageSize);
@@ -160,6 +164,23 @@ export default function ViewBooks() {
           }}
           style={{ width: "300px", padding: "5px" }}
         />
+        <select
+          value={searchField}
+          onChange={e => setSearchField(e.target.value)}
+          style={{ marginLeft: "10px", padding: "5px" }}
+        >
+          <option value="all">All Fields</option>
+          <option value="bookId">Book ID</option>
+          <option value="title">Title</option>
+          <option value="author">Author</option>
+          <option value="category">Category</option>
+          <option value="status">Status</option>
+          <option value="availability">Availability</option>
+          <option value="createdAt">Created At</option>
+          <option value="createdBy">Created By</option>
+          <option value="updatedAt">Updated At</option>
+          <option value="updatedBy">Updated By</option>
+        </select>
       </div>
       {filteredBooks.length === 0 ? (
         <p className="no-books">No books found in the library.</p>

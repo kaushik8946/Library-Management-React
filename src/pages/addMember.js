@@ -75,6 +75,12 @@ function AddMember() {
 
       if (res.ok) {
         alert("Member added successfully!");
+        nameRef.current.value = "";
+        emailRef.current.value = "";
+        phoneNumberRef.current.value = "";
+        addressRef.current.value = "";
+        const checkedGender = document.querySelector('input[name="gender"]:checked');
+        checkedGender.checked = false;
       } else {
         alert(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
       }
@@ -89,6 +95,7 @@ function AddMember() {
 
   return (
     <div className="form-container">
+      <h2>Add Member</h2>
       <form onSubmit={handleSubmit}>
         <label htmlFor="name">Name:</label>
         <input

@@ -114,15 +114,10 @@ function UpdateMember() {
         responseBody = text;
       }
 
-      // alert(
-      //   `Status: ${statusCode}\nResponse: ${typeof responseBody === "object"
-      //     ? JSON.stringify(responseBody, null, 2)
-      //     : responseBody
-      //   }`
-      // );
 
       if (res.ok) {
         alert("Member updated successfully!");
+        handleBack();
       } else {
         alert(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
       }

@@ -8,6 +8,7 @@ export default function ViewMembers() {
   const [selected, setSelected] = useState([])
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchField, setSearchField] = useState("all");
   const pageSize = 5;
 
   const toggleSelect = (id) => {
@@ -94,9 +95,14 @@ export default function ViewMembers() {
   const filteredMembers = members.filter((member) => {
     if (!searchTerm.trim()) return true;
     const term = searchTerm.toLowerCase();
-    return Object.values(member).some((value) =>
-      value && String(value).toLowerCase().includes(term)
-    );
+    if (searchField === "all") {
+      return Object.values(member).some((value) =>
+        value && String(value).toLowerCase().includes(term)
+      );
+    } else {
+      const value = member[searchField];
+      return value && String(value).toLowerCase().includes(term);
+    }
   });
 
   const totalPages = Math.ceil(filteredMembers.length / pageSize);
@@ -124,6 +130,23 @@ export default function ViewMembers() {
           }}
           style={{ width: "300px", padding: "5px" }}
         />
+        <select
+          value={searchField}
+          onChange={e => setSearchField(e.target.value)}
+          style={{ marginLeft: "10px", padding: "5px" }}
+        >
+          <option value="all">All Fields</option>
+          <option value="memberID">ID</option>
+          <option value="name">Name</option>
+          <option value="email">Email</option>
+          <option value="phoneNumber">Phone</option>
+          <option value="gender">Gender</option>
+          <option value="address">Address</option>
+          <option value="createdAt">Created At</option>
+          <option value="createdBy">Created By</option>
+          <option value="updatedAt">Updated At</option>
+          <option value="updatedBy">Updated By</option>
+        </select>
       </div>
       <table>
         <thead>
@@ -163,7 +186,7 @@ export default function ViewMembers() {
               <td>{formatDateTime(member.createdAt)}</td>
               <td>{capitalizeFirst(member.createdBy)}</td>
               <td>{formatDateTime(member.updatedAt)}</td>
-              <td>{member.updatedBy}</td>
+              <td>{capitalizeFirst(member.updatedBy)}</td>
               <th>
                 <button className="update-button"
                   onClick={() => window.location.href = `/updateMember/${member.memberID}`}>
