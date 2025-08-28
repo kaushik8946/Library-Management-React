@@ -4,6 +4,7 @@ export default function ViewBooks() {
   const [books, setBooks] = useState([]);
   const [selected, setSelected] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const pageSize = 5;
 
   useEffect(() => {
@@ -14,13 +15,8 @@ export default function ViewBooks() {
           const errorText = await res.text();
           throw new Error(errorText);
         }
+        return res.json();
 
-        if (contentType && contentType.includes("application/json")) {
-          return res.json();
-        } else {
-          const text = await res.text();
-          throw new Error("Expected JSON but got:\n" + text);
-        }
       })
       .then((data) => {
         setBooks(data);
@@ -42,14 +38,6 @@ export default function ViewBooks() {
       }
       return updated;
     });
-  };
-
-  const toggleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelected(books.map((b) => b.bookId));
-    } else {
-      setSelected([]);
-    }
   };
 
   const handleBatchDelete = async () => {
@@ -88,12 +76,12 @@ export default function ViewBooks() {
       alert("Please select books to update.");
       return;
     }
-    if (!window.confirm(`Update availability for ${selected.length} books?`))
+    if (!window.confirm(`Update status for ${selected.length} books?`))
       return;
 
     try {
       const res = await fetch(
-        "http://localhost:8080/api/books/batchUpdateBooks",
+        "http://localhost:8080/api/books/updateBooksStatusBatch",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -111,17 +99,22 @@ export default function ViewBooks() {
 
       if (res.ok) {
         alert("Updated successfully");
-        setBooks(
-          books.map((b) => {
-            if (selected.includes(b.bookId)) {
-              const newAvailability = b.availability === "AVAILABLE" ? "ISSUED" : "AVAILABLE";
-              return { ...b, availability: newAvailability };
-            } else {
-              return b;
+        fetch("http://localhost:8080/api/books/viewBooks")
+          .then(async (res) => {
+            const contentType = res.headers.get("content-type");
+            if (!res.ok) {
+              const errorText = await res.text();
+              throw new Error(errorText);
             }
+            return res.json();
+
           })
-        );
-        setSelected([]);
+          .then((data) => {
+            setBooks(data);
+          })
+          .catch((err) => {
+            alert("Error fetching books:\n" + err.message);
+          });
       } else {
         alert(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
       }
@@ -135,27 +128,47 @@ export default function ViewBooks() {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-  const totalPages = Math.ceil(books.length / pageSize);
-  const paginatedBooks = books.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const filteredBooks = books.filter((book) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase();
+    return Object.values(book).some((value) =>
+      value && String(value).toLowerCase().includes(term)
+    );
+  });
+
+  const totalPages = Math.ceil(filteredBooks.length / pageSize);
+  const paginatedBooks = filteredBooks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const formatDateTime = (dateTime) => {
+    if(!dateTime) return ''
+    dateTime = String(dateTime)
+    dateTime = dateTime.replace('T', '\n')
+    return dateTime;
+  }
 
   return (
     <div className="view-books">
       <h2>All Books</h2>
-
-      {books.length === 0 ? (
+      <div style={{ marginBottom: "10px" }}>
+        <input
+          type="text"
+          placeholder="Search books..."
+          value={searchTerm}
+          onChange={e => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          style={{ width: "300px", padding: "5px" }}
+        />
+      </div>
+      {filteredBooks.length === 0 ? (
         <p className="no-books">No books found in the library.</p>
       ) : (
         <>
           <table className="books-table">
             <thead>
               <tr>
-                <th>
-                  <input
-                    type="checkbox"
-                    onChange={toggleSelectAll}
-                    checked={selected.length === books.length && books.length > 0}
-                  />
-                </th>
+                <th></th>
                 <th>Book ID</th>
                 <th>Title</th>
                 <th>Author</th>
@@ -185,9 +198,9 @@ export default function ViewBooks() {
                   <td>{capitalizeFirst(book.category)}</td>
                   <td>{capitalizeFirst(book.status)}</td>
                   <td>{capitalizeFirst(book.availability)}</td>
-                  <td>{book.createdAt}</td>
+                  <td>{formatDateTime(book.createdAt)}</td>
                   <td>{capitalizeFirst(book.createdBy)}</td>
-                  <td>{book.updatedAt}</td>
+                  <td>{formatDateTime(book.updatedAt)}</td>
                   <td>{book.updatedBy}</td>
                   <td>
                     <button

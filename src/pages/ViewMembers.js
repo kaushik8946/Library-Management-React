@@ -7,6 +7,7 @@ export default function ViewMembers() {
   const [error, setError] = useState(null)
   const [selected, setSelected] = useState([])
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const pageSize = 5;
 
   const toggleSelect = (id) => {
@@ -61,6 +62,8 @@ export default function ViewMembers() {
       alert('select members to delete')
       return
     }
+    if (!window.confirm(`Delete ${selected.length} members?`))
+      return;
     try {
       const response = await fetch(
         "http://localhost:8080/api/members/batchDeleteMembers",
@@ -88,16 +91,40 @@ export default function ViewMembers() {
     return records.filter(record => record.memberId === memberId && record.status === 'ISSUED').length > 0;
   }
 
-  // Calculate paginated members
-  const totalPages = Math.ceil(members.length / pageSize);
-  const paginatedMembers = members.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const filteredMembers = members.filter((member) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase();
+    return Object.values(member).some((value) =>
+      value && String(value).toLowerCase().includes(term)
+    );
+  });
 
+  const totalPages = Math.ceil(filteredMembers.length / pageSize);
+  const paginatedMembers = filteredMembers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const formatDateTime = (dateTime) => {
+    if (!dateTime) return ''
+    dateTime = String(dateTime)
+    dateTime = dateTime.replace('T', '\n')
+    return dateTime;
+  }
   if (loading) return <p>Loading...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div>
       <h1>Members</h1>
+      <div style={{ marginBottom: "10px" }}>
+        <input
+          type="text"
+          placeholder="Search members..."
+          value={searchTerm}
+          onChange={e => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          style={{ width: "300px", padding: "5px" }}
+        />
+      </div>
       <table>
         <thead>
           <tr>
@@ -133,9 +160,9 @@ export default function ViewMembers() {
               <td>{capitalizeFirst(member.gender)}</td>
               <td>{member.address}</td>
               <td>{hasTakenBook(member.memberID) ? "Yes" : "No"}</td>
-              <td>{member.createdAt}</td>
+              <td>{formatDateTime(member.createdAt)}</td>
               <td>{capitalizeFirst(member.createdBy)}</td>
-              <td>{member.updatedAt}</td>
+              <td>{formatDateTime(member.updatedAt)}</td>
               <td>{member.updatedBy}</td>
               <th>
                 <button className="update-button"
