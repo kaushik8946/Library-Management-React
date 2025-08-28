@@ -6,6 +6,9 @@ export default function ViewMembers() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [selected, setSelected] = useState([])
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
+
   const toggleSelect = (id) => {
     setSelected((prev) => {
       const updated = [...prev];
@@ -19,7 +22,10 @@ export default function ViewMembers() {
       return updated;
     });
   };
-
+  const capitalizeFirst = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
   useEffect(() => {
     const load = async () => {
       try {
@@ -82,62 +88,88 @@ export default function ViewMembers() {
     return records.filter(record => record.memberId === memberId && record.status === 'ISSUED').length > 0;
   }
 
+  // Calculate paginated members
+  const totalPages = Math.ceil(members.length / pageSize);
+  const paginatedMembers = members.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div>
       <h1>Members</h1>
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Gender</th>
-              <th>Address</th>
-              <th>Has active issue?</th>
-              <th>Created At</th>
-              <th>Created By</th>
-              <th>Updated At</th>
-              <th>Updated By</th>
-              <th>Action</th>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Gender</th>
+            <th>Address</th>
+            <th>Has active issue?</th>
+            <th>Created At</th>
+            <th>Created By</th>
+            <th>Updated At</th>
+            <th>Updated By</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedMembers.map((member) => (
+            <tr key={member.memberID}>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={selected.includes(member.memberID)}
+                  onChange={() => toggleSelect(member.memberID)}
+                />
+              </td>
+              <td>{member.memberID}</td>
+              <td>{member.name}</td>
+              <td>{member.email}</td>
+              <td>{member.phoneNumber}</td>
+              <td>{capitalizeFirst(member.gender)}</td>
+              <td>{member.address}</td>
+              <td>{hasTakenBook(member.memberID) ? "Yes" : "No"}</td>
+              <td>{member.createdAt}</td>
+              <td>{capitalizeFirst(member.createdBy)}</td>
+              <td>{member.updatedAt}</td>
+              <td>{member.updatedBy}</td>
+              <th>
+                <button className="update-button"
+                  onClick={() => window.location.href = `/updateMember/${member.memberID}`}>
+                  Update
+                </button>
+              </th>
             </tr>
-          </thead>
-          <tbody>
-            {members.map((member) => (
-              <tr key={member.memberID}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(member.memberID)}
-                    onChange={() => toggleSelect(member.memberID)}
-                  />
-                </td>
-                <td>{member.memberID}</td>
-                <td>{member.name}</td>
-                <td>{member.email}</td>
-                <td>{member.phoneNumber}</td>
-                <td>{member.gender}</td>
-                <td>{member.address}</td>
-                <td>{hasTakenBook(member.memberID) ? "Yes" : "No"}</td>
-                <td>{member.createdAt}</td>
-                <td>{member.createdBy}</td>
-                <td>{member.updatedAt}</td>
-                <td>{member.updatedBy}</td>
-                <th>
-                  <button className="update-button"
-                    onClick={() => window.location.href = `/updateMember/${member.memberID}`}>
-                    Update
-                  </button>
-                </th>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          ))}
+        </tbody>
+      </table>
+
+      <div style={{ margin: "10px 0", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <button
+          type="button"
+          className="pagination-btn"
+          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+          style={{ marginRight: "10px" }}
+        >
+          Prev
+        </button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          type="button"
+          className="pagination-btn"
+          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages}
+          style={{ marginLeft: "10px" }}
+        >
+          Next
+        </button>
       </div>
 
       <div style={{ margin: '10px' }}>

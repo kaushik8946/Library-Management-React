@@ -8,48 +8,42 @@ function ReturnBook() {
   useEffect(() => {
     fetch("http://localhost:8080/api/issues/viewIssuedRecords")
       .then(res => res.json())
-      .then(data =>{ setIssuedBooks(data)})
+      .then(data => { setIssuedBooks(data) })
       .catch(() => setIssuedBooks([]));
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatusMessage("");
+    const bookIdVal = bookId;
 
-    if (bookId === null || Number.isNaN(bookId)) {
+    if (bookIdVal === null || Number.isNaN(bookIdVal)) {
       setStatusMessage("Please enter a valid numeric Issue ID.");
       return;
     }
 
-    const url = `http://localhost:8080/api/issues/returnBook?bookId=${bookId}`;
-
     try {
-      const response = await fetch(url, { method: "POST" });
+      const url = `http://localhost:8080/api/issues/returnBook?bookId=${bookIdVal}`;
+      const res = await fetch(url, { method: "POST" });
+      const text = await res.text();
 
-      if (response.ok) {
-        setStatusMessage("Book returned successfully!");
-        setbookId(null);
-        return;
+      let responseBody;
+      try {
+        responseBody = JSON.parse(text);
+      } catch {
+        responseBody = text;
       }
 
-      let errMsg = `Request failed (status ${response.status})`;
-      try {
-        const ct = response.headers.get("content-type") || "";
-        if (ct.includes("application/json")) {
-          const data = await response.json();
-          errMsg = data?.message || data?.error || JSON.stringify(data);
-        } else {
-          const text = await response.text();
-          if (text) errMsg = text;
-        }
-      } catch (_) { }
-
-      setStatusMessage(errMsg);
-      alert(errMsg);
-    } catch (networkErr) {
-      const msg = networkErr?.message || "Network error occurred";
-      setStatusMessage(msg);
-      alert(msg);
+      if (res.ok) {
+        alert("Book returned successfully!");
+        setStatusMessage("Book returned successfully!");
+        setbookId(null);
+      } else {
+        alert(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
+        setStatusMessage(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
+      }
+    } catch (err) {
+      alert("Error: " + err.message);
+      setStatusMessage("Error: " + err.message);
     }
   };
 
@@ -80,11 +74,11 @@ function ReturnBook() {
           {issuedBooks.length > 0 ? (
             <textarea
               readOnly
-              value={issuedBooks.filter(issue=>!issue.returnDate)
+              value={issuedBooks.filter(issue => !issue.returnDate)
                 .map(
-                i =>
-                  `BookID: ${i.bookId}, MemberID: ${i.memberId}, Issued: ${i.issueDate}, Not Returned`
-              ).join("\n")}
+                  i =>
+                    `BookID: ${i.bookId}, MemberID: ${i.memberId}, Issued: ${i.issueDate}, Not Returned`
+                ).join("\n")}
             />
           ) : (
             <p>No issued books.</p>

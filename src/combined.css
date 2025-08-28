@@ -126,16 +126,10 @@ button {
 }
 
 table {
-  width: 100%;
+  width: 1500px;
   border-collapse: collapse;
-  margin-top: 10px;
 }
 
-.table-container {
-  max-height: 580px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-}
 
 thead {
   position: sticky;
@@ -269,4 +263,19 @@ form input[type="submit"]:hover {
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
+}
+
+.pagination-btn {
+  width: 60px;
+  height: 28px;
+  font-size: 13px !important;
+  padding: 2px 8px;
+  margin: 2px;
+  border-radius: 4px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

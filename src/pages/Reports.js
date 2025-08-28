@@ -3,7 +3,10 @@ import React, { useState } from "react";
 function Reports() {
   const [reportData, setReportData] = useState([]);
   const [reportType, setReportType] = useState("");
-
+  const capitalizeFirst = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
   const fetchReport = async (type) => {
     let url = "";
 
@@ -45,7 +48,7 @@ function Reports() {
 
   const renderTable = () => {
     if (reportType === "overdue") {
-      if (reportData.length===0) {
+      if (reportData.length === 0) {
         return (
           <p>No overdue books found</p>
         );
@@ -75,6 +78,9 @@ function Reports() {
     }
 
     if (reportType === "membersWithActiveBooks") {
+      if (reportData.length === 0) {
+        return <p>No members with active books</p>;
+      }
       return (
         <table className="report-table">
           <thead>
@@ -107,7 +113,7 @@ function Reports() {
           <tbody>
             {reportData.map((c, idx) => (
               <tr key={idx}>
-                <td>{c.category}</td>
+                <td>{capitalizeFirst(c.category)}</td>
                 <td>{c.count}</td>
               </tr>
             ))}

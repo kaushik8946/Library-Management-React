@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 export default function ViewBooks() {
   const [books, setBooks] = useState([]);
   const [selected, setSelected] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   useEffect(() => {
     fetch("http://localhost:8080/api/books/viewBooks")
@@ -90,37 +92,51 @@ export default function ViewBooks() {
       return;
 
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/books/updateBooksAvailabilityBatch",
+      const res = await fetch(
+        "http://localhost:8080/api/books/batchUpdateBooks",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(selected),
         }
       );
+      const text = await res.text();
 
-      const text = await response.text();
-      if (!response.ok) {
-        alert(`Update failed: ${text}`);
-        return;
+      let responseBody;
+      try {
+        responseBody = JSON.parse(text);
+      } catch {
+        responseBody = text;
       }
 
-      alert("Updated successfully");
-      setBooks(
-        books.map((b) => {
-          if (selected.includes(b.bookId)) {
-            const newAvailability = b.availability === "AVAILABLE" ? "ISSUED" : "AVAILABLE";
-            return { ...b, availability: newAvailability };
-          } else {
-            return b;
-          }
-        })
-      );
-      setSelected([]);
+      if (res.ok) {
+        alert("Updated successfully");
+        setBooks(
+          books.map((b) => {
+            if (selected.includes(b.bookId)) {
+              const newAvailability = b.availability === "AVAILABLE" ? "ISSUED" : "AVAILABLE";
+              return { ...b, availability: newAvailability };
+            } else {
+              return b;
+            }
+          })
+        );
+        setSelected([]);
+      } else {
+        alert(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
+      }
     } catch (err) {
       alert("Error: " + err.message);
     }
   };
+
+  const capitalizeFirst = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  const totalPages = Math.ceil(books.length / pageSize);
+  const paginatedBooks = books.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="view-books">
@@ -129,69 +145,91 @@ export default function ViewBooks() {
       {books.length === 0 ? (
         <p className="no-books">No books found in the library.</p>
       ) : (
-        <form>
-          <div className="table-container">
-            <table className="books-table">
-              <thead>
-                <tr>
-                  <th>
+        <>
+          <table className="books-table">
+            <thead>
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    onChange={toggleSelectAll}
+                    checked={selected.length === books.length && books.length > 0}
+                  />
+                </th>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Availability</th>
+                <th>Created At</th>
+                <th>Created By</th>
+                <th>Updated At</th>
+                <th>Updated By</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedBooks.map((book) => (
+                <tr key={book.bookId}>
+                  <td>
                     <input
                       type="checkbox"
-                      onChange={toggleSelectAll}
-                      checked={selected.length === books.length && books.length > 0}
+                      checked={selected.includes(book.bookId)}
+                      onChange={() => toggleSelect(book.bookId)}
                     />
-                  </th>
-                  <th>Book ID</th>
-                  <th>Title</th>
-                  <th>Author</th>
-                  <th>Category</th>
-                  <th>Status</th>
-                  <th>Availability</th>
-                  <th>Created At</th>
-                  <th>Created By</th>
-                  <th>Updated At</th>
-                  <th>Updated By</th>
-                  <th>Action</th>
+                  </td>
+                  <td>{book.bookId}</td>
+                  <td>{book.title}</td>
+                  <td>{book.author}</td>
+                  <td>{capitalizeFirst(book.category)}</td>
+                  <td>{capitalizeFirst(book.status)}</td>
+                  <td>{capitalizeFirst(book.availability)}</td>
+                  <td>{book.createdAt}</td>
+                  <td>{capitalizeFirst(book.createdBy)}</td>
+                  <td>{book.updatedAt}</td>
+                  <td>{book.updatedBy}</td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => window.location.href = `/updateBook/${book.bookId}`}
+                    >
+                      Update
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {books.map((book) => (
-                  <tr key={book.bookId}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selected.includes(book.bookId)}
-                        onChange={() => toggleSelect(book.bookId)}
-                      />
-                    </td>
-                    <td>{book.bookId}</td>
-                    <td>{book.title}</td>
-                    <td>{book.author}</td>
-                    <td>{book.category}</td>
-                    <td>{book.status}</td>
-                    <td>{book.availability}</td>
-                    <td>{book.createdAt}</td>
-                    <td>{book.createdBy}</td>
-                    <td>{book.updatedAt}</td>
-                    <td>{book.updatedBy}</td>
-                    <td>
-                      <button
-                        type="button"
-                        onClick={() => window.location.href = `/updateBook/${book.bookId}`}
-                      >
-                        Update
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              ))}
+            </tbody>
+          </table>
+
+          <div style={{ margin: "10px 0", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <button
+              type="button"
+              className="pagination-btn"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{ marginRight: "10px" }}
+            >
+              Prev
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              type="button"
+              className="pagination-btn"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{ marginLeft: "10px" }}
+            >
+              Next
+            </button>
           </div>
 
           <div className="actions">
-            <button type="button" onClick={handleBatchDelete}>
+            {/* <button type="button" onClick={handleBatchDelete}>
               Delete Selected
-            </button>
+            </button> */}
             <button type="button" onClick={handleBatchUpdate}>
               Change Status
             </button>
@@ -199,7 +237,7 @@ export default function ViewBooks() {
               Back to Main Menu
             </button>
           </div>
-        </form>
+        </>
       )}
     </div>
   );
