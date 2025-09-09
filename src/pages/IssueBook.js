@@ -50,6 +50,15 @@ function IssueBook() {
         setStatusMessage("Book issued successfully!");
         setBookId(null);
         setMemberId(null);
+        fetch("http://localhost:8080/api/books/viewBooks")
+          .then(res => res.json())
+          .then(data => setBooks(data))
+          .catch(() => setBooks([]));
+
+        fetch("http://localhost:8080/api/members/viewMembers")
+          .then(res => res.json())
+          .then(data => setMembers(data))
+          .catch(() => setMembers([]));
       } else {
         alert(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
         setStatusMessage(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
@@ -64,9 +73,9 @@ function IssueBook() {
 
     <div className="issue-full">
       <h2>Issue Book</h2>
-      {statusMessage && <p className="status">{statusMessage}</p>}
       <div className="issue-container">
         <form onSubmit={handleSubmit} className="form">
+          <label>Enter Book ID:</label>
           <input
             type="number"
             placeholder="Enter Book ID"
@@ -77,6 +86,7 @@ function IssueBook() {
             }}
             required
           />
+          <label>Enter member ID:</label>
           <input
             type="number"
             placeholder="Enter Member ID"
@@ -96,21 +106,24 @@ function IssueBook() {
         <div className="issue-display">
           <h4>Available Books</h4>
           {books.length > 0 ? (
-            <textarea readOnly value={books.filter(book => book.availability === "AVAILABLE")
-              .map(
-                b => `ID: ${b.bookId}, Title: ${b.title}, Author: ${b.author}, Avail: ${b.availability}, Status: ${b.status}`
-              ).join("\n")} />
+            <textarea readOnly style={{ height: '200px' }}
+              value={books.filter(book => book.availability === "AVAILABLE")
+                .filter(book => book.status === 'ACTIVE')
+                .map(
+                  b => `ID: ${b.bookId}, Title: ${b.title}, Author: ${b.author}`
+                ).join("\n")} />
           ) : (
-            <p>No books in the library.</p>
+            <p>No books in the library</p>
           )}
 
-          <h4>Registered Members</h4>
+          <h4>All Members</h4>
           {members.length > 0 ? (
-            <textarea readOnly value={members.map(
-              m => `ID: ${m.memberID}, Name: ${m.name}`
-            ).join("\n")} />
+            <textarea readOnly style={{ height: '200px' }}
+              value={members.map(
+                m => `ID: ${m.memberID}, Name: ${m.name}`
+              ).join("\n")} />
           ) : (
-            <p>No members registered.</p>
+            <p>No members</p>
           )}
         </div>
       </div>

@@ -51,6 +51,13 @@ function ViewIssueRecords() {
     return member ? member.name : "---";
   };
 
+  const formatDateTime = (dateTime) => {
+    if (!dateTime) return ''
+    dateTime = String(dateTime)
+    dateTime = dateTime.replace('T', ' ')
+    return dateTime;
+  }
+
   return (
     <div>
       <h2>Issued Records</h2>
@@ -77,8 +84,8 @@ function ViewIssueRecords() {
                 <td>{getBookNameById(rec.bookId)}</td>
                 <td>{rec.memberId}</td>
                 <td>{getMemberNameById(rec.memberId)}</td>
-                <td>{rec.issueDate}</td>
-                <td>{rec.returnDate || "Not Returned"}</td>
+                <td>{formatDateTime(rec.issueDate)}</td>
+                <td>{(rec.returnDate && formatDateTime(rec.returnDate)) || "Not Returned"}</td>
               </tr>
             ))}
           </tbody>
@@ -86,7 +93,7 @@ function ViewIssueRecords() {
       ) : (
         !error && <p>No issued records found.</p>
       )}
-      <button type="button" onClick={() => (window.location.href = "/")}>
+      <button type="button" onClick={() => (window.location.href = "/")} className="back-button">
         Back to Main Menu
       </button>
     </div>

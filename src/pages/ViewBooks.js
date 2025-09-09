@@ -85,7 +85,7 @@ export default function ViewBooks() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(selected),
+          body: JSON.stringify([selected]),
         }
       );
       const text = await res.text();
@@ -106,14 +106,16 @@ export default function ViewBooks() {
               throw new Error(errorText);
             }
             return res.json();
-
           })
           .then((data) => {
             setBooks(data);
+            console.log(data);
+
           })
           .catch((err) => {
             alert("Error fetching books:\n" + err.message);
           });
+        setSelected([]);
       } else {
         alert(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
       }
@@ -144,7 +146,7 @@ export default function ViewBooks() {
   const paginatedBooks = filteredBooks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const formatDateTime = (dateTime) => {
-    if(!dateTime) return ''
+    if (!dateTime) return ''
     dateTime = String(dateTime)
     dateTime = dateTime.replace('T', '\n')
     return dateTime;
@@ -222,7 +224,7 @@ export default function ViewBooks() {
                   <td>{formatDateTime(book.createdAt)}</td>
                   <td>{capitalizeFirst(book.createdBy)}</td>
                   <td>{formatDateTime(book.updatedAt)}</td>
-                  <td>{book.updatedBy}</td>
+                  <td>{capitalizeFirst(book.updatedBy)}</td>
                   <td>
                     <button
                       type="button"
@@ -264,10 +266,11 @@ export default function ViewBooks() {
             {/* <button type="button" onClick={handleBatchDelete}>
               Delete Selected
             </button> */}
-            <button type="button" onClick={handleBatchUpdate}>
+            <button type="button" onClick={handleBatchUpdate}
+              disabled={selected.length === 0}>
               Change Status
             </button>
-            <button type="button" onClick={() => (window.location.href = "/")}>
+            <button type="button" onClick={() => (window.location.href = "/")} >
               Back to Main Menu
             </button>
           </div>

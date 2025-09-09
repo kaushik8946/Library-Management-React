@@ -1,20 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 
 function UpdateBook() {
   const params = useParams();
   const bookId = params.bookId;
 
-  const titleRef = useRef(null);
-  const authorRef = useRef(null);
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
   const [availability, setAvailability] = useState('');
-  const [categories, setCategories] = useState([]);
-
-
-  const statuses = ["ACTIVE", "INACTIVE"];
-  const availabilities = ["AVAILABLE", "ISSUED"];
+  const [statuses, setStatuses] = useState([]);
 
   useEffect(() => {
     if (!bookId) {
@@ -36,8 +32,8 @@ function UpdateBook() {
           alert("Book not found");
         } else {
           const book = data[0];
-          titleRef.current.value = book.title;
-          authorRef.current.value = book.author;
+          setTitle(book.title);
+          setAuthor(book.author);
           setCategory(book.category);
           setStatus(book.status);
           setAvailability(book.availability);
@@ -48,87 +44,51 @@ function UpdateBook() {
       }
     };
 
-    fetchBook();
-  }, [bookId]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchStatuses = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/books/getCategories");
-        if (!res.ok) throw new Error("Failed to fetch categories");
+        const res = await fetch("http://localhost:8080/api/books/getStatuses");
+        if (!res.ok) throw new Error("Failed to fetch statuses");
         const data = await res.json();
-        setCategories(data);
+        setStatuses(data);
       } catch (err) {
-        setCategories([]);
+        setStatuses([]);
       }
     };
-    fetchCategories();
-  }, []);
 
-  useEffect(() => {
-    if (category) {
-      const categorySelect = document.getElementById('categoryComboBox');
-      if (categorySelect) categorySelect.value = category;
-    }
-  }, [category]);
+    fetchBook();
+    fetchStatuses();
+  }, [bookId]);
 
-  useEffect(() => {
-    if (status) {
-      const statusSelect = document.getElementById('statusComboBox');
-      if (statusSelect) statusSelect.value = status;
-    }
-  }, [status]);
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     try {
+  //       const res = await fetch("http://localhost:8080/api/books/getCategories");
+  //       if (!res.ok) throw new Error("Failed to fetch categories");
+  //       const data = await res.json();
+  //       setCategories(data);
+  //     } catch (err) {
+  //       setCategories([]);
+  //     }
+  //   };
+  //   fetchCategories();
+  // }, []);
 
-  useEffect(() => {
-    if (availability) {
-      const availabilitySelect = document.getElementById('availabilityComboBox');
-      if (availabilitySelect) availabilitySelect.value = availability;
-    }
-  }, [availability]);
-  const validate = (title, author, category, status, availability) => {
-    if (!title) {
-      alert(title + "Book title can't be null");
-      return false;
-    }
-    const titleTrimmed = title.trim();
-    if (titleTrimmed.length < 2 || titleTrimmed.length > 100) {
-      alert("Book title must be between 2 and 100 characters");
-      return false;
-    }
-    if (!author) {
-      alert("Author can't be null");
-      return false;
-    }
-    const authorTrimmed = author.trim();
-    if (authorTrimmed.length < 2 || authorTrimmed.length > 100) {
-      alert("Author name must be between 2 and 100 characters");
-      return false;
-    }
-    if (!category) {
-      alert("Category can't be null");
-      return false;
-    }
+  const validate = (status) => {
     if (!status) {
       alert("Status can't be null");
       return false;
     }
-    if (!availability) {
-      alert("Availability can't be null");
-      return false;
-    }
     return true;
   }
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const title = titleRef.current.value;
-    const author = authorRef.current.value;
-    const formCategory = category.toUpperCase();
     const formStatus = status.toUpperCase();
-    const formAvailability = availability.toUpperCase();
-    console.log(title, author, formCategory, formStatus, formAvailability)
-    if (!validate(title, author, formCategory, formStatus, formAvailability)) {
+    
+    if (!validate(formStatus)) {
       return;
     }
+    
     try {
       const res = await fetch("http://localhost:8080/api/books/updateBook", {
         method: "PUT",
@@ -137,9 +97,9 @@ function UpdateBook() {
           bookId,
           title,
           author,
-          category: formCategory,
+          category,
           status: formStatus,
-          availability: formAvailability
+          availability
         })
       });
       // const statusCode = res.status;
@@ -171,86 +131,55 @@ function UpdateBook() {
 
   return (
     <div className="form-container">
+      <h2>Update book</h2>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="title">Title:</label>
-        <input
-          type="text"
-          id="title"
-          name="title"
-          required
-          ref={titleRef}
-          onInvalid={e => e.target.setCustomValidity('title is required')}
-          onInput={e => e.target.setCustomValidity('')}
-        />
+        <div className="form-group">
+          <label>Title: </label>
+          <div className="field-value">{title}</div>
+        </div>
 
-        <label htmlFor="author">Author:</label>
-        <input
-          type="text"
-          id="author"
-          name="author"
-          required
-          ref={authorRef}
-          onInvalid={e => e.target.setCustomValidity('author is required')}
-          onInput={e => e.target.setCustomValidity('')}
-        />
+        <div className="form-group">
+          <label>Author:</label>
+          <div className="field-value">{author}</div>
+        </div>
 
-        <label htmlFor="categoryComboBox">Category:</label>
-        <select
-          id="categoryComboBox"
-          name="category"
-          required
-          value={category}
-          onChange={e => setCategory(e.target.value)}
-          onInvalid={e => e.target.setCustomValidity('category is required')}
-          onInput={e => e.target.setCustomValidity('')}
-        >
-          <option value="" disabled>Select category</option>
-          {categories.map(cat => (
-            <option key={cat} value={cat}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase()}
-            </option>
-          ))}
-        </select>
+        <div className="form-group">
+          <label>Category:</label>
+          <div className="field-value">
+            {category ? category.charAt(0).toUpperCase() + category.slice(1).toLowerCase() : ''}
+          </div>
+        </div>
 
-        <label htmlFor="statusComboBox">Status:</label>
-        <select
-          id="statusComboBox"
-          name="status"
-          required
-          value={status}
-          onChange={e => setStatus(e.target.value)}
-          onInvalid={e => e.target.setCustomValidity('status is required')}
-          onInput={e => e.target.setCustomValidity('')}
-        >
-          <option value="" disabled>Select status</option>
-          {statuses.map(stat => (
-            <option key={stat} value={stat}>
-              {stat.charAt(0).toUpperCase() + stat.slice(1).toLowerCase()}
-            </option>
-          ))}
-        </select>
+        <div className="form-group">
+          <label htmlFor="statusComboBox">Status:</label>
+          <select
+            id="statusComboBox"
+            name="status"
+            required
+            value={status}
+            onChange={e => setStatus(e.target.value)}
+            onInvalid={e => e.target.setCustomValidity('status is required')}
+            onInput={e => e.target.setCustomValidity('')}
+          >
+            <option value="" disabled>Select status</option>
+            {statuses.map(stat => (
+              <option key={stat} value={stat}>
+                {stat.charAt(0).toUpperCase() + stat.slice(1).toLowerCase()}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <label htmlFor="availabilityComboBox">Availability:</label>
-        <select
-          id="availabilityComboBox"
-          name="availability"
-          required
-          value={availability}
-          onChange={e => setAvailability(e.target.value)}
-          onInvalid={e => e.target.setCustomValidity('Availability is required')}
-          onInput={e => e.target.setCustomValidity('')}
-        >
-          <option value="" disabled>Select availability</option>
-          {availabilities.map(avail => (
-            <option key={avail} value={avail}>
-              {avail.charAt(0).toUpperCase() + avail.slice(1).toLowerCase()}
-            </option>
-          ))}
-        </select>
+        <div className="form-group">
+          <label>Availability:</label>
+          <div className="field-value">
+            {availability ? availability.charAt(0).toUpperCase() + availability.slice(1).toLowerCase() : ''}
+          </div>
+        </div>
 
         <div className="button-row">
           <input type="submit" value="Update Book" />
-          <button type="button" className="back-button" onClick={handleBack}>Back to View Books</button>
+          <button type="button" className="back-button" onClick={handleBack}>Go Back</button>
         </div>
       </form>
     </div>

@@ -5,9 +5,10 @@ function AddBook() {
   const authorRef = useRef();
   const categoryRef = useRef();
   const statusRef = useRef();
-  const availabilityRef = useRef();
+  // const availabilityRef = useRef();
 
   const [categories, setCategories] = useState([]);
+  const [statuses, setStatuses] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -20,12 +21,21 @@ function AddBook() {
         setCategories([]);
       }
     };
+    const fetchStatuses = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/books/getStatuses");
+        if (!res.ok) throw new Error("Failed to fetch statuses");
+        const data = await res.json();
+        setStatuses(data);
+      } catch (err) {
+        setStatuses([]);
+      }
+    };
     fetchCategories();
+    fetchStatuses();
   }, []);
 
-  const statuses = ["ACTIVE", "INACTIVE"];
-  const availabilities = ["AVAILABLE", "ISSUED"];
-  const validate = ({ title, author, category, status, availability }) => {
+  const validate = ({ title, author, category, status }) => {
     if (!title) {
       alert("Book title can't be null");
       return false;
@@ -52,10 +62,6 @@ function AddBook() {
       alert("Status can't be null");
       return false;
     }
-    if (!availability) {
-      alert("Availability can't be null");
-      return false;
-    }
     return true;
   }
   const handleSubmit = async (e) => {
@@ -64,16 +70,16 @@ function AddBook() {
     const author = authorRef.current.value;
     const category = categoryRef.current.value.toUpperCase();
     const status = statusRef.current.value.toUpperCase();
-    const availability = availabilityRef.current.value.toUpperCase();
+    // const availability = availabilityRef.current.value.toUpperCase();
 
-    if (!validate({ title, author, category, status, availability })) {
+    if (!validate({ title, author, category, status })) {
       return;
     }
     try {
       const res = await fetch("http://localhost:8080/api/books/addBook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, author, category, status, availability })
+        body: JSON.stringify({ title, author, category, status, availability: "AVAILABLE" })
       });
 
       const text = await res.text();
@@ -91,7 +97,7 @@ function AddBook() {
         authorRef.current.value = "";
         categoryRef.current.value = "";
         statusRef.current.value = "";
-        availabilityRef.current.value = "";
+        // availabilityRef.current.value = "";
       } else {
         alert(typeof responseBody === "object" ? JSON.stringify(responseBody) : responseBody);
       }
@@ -174,7 +180,7 @@ function AddBook() {
           </select>
         </div>
 
-        <div className="form-row">
+        {/* <div className="form-row">
           <label htmlFor="availabilityComboBox">Availability:</label>
           <select
             id="availabilityComboBox"
@@ -191,7 +197,7 @@ function AddBook() {
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
 
         <div className="button-row">
           <button type="submit" className="add-button">Add Book</button>

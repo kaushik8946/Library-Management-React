@@ -42,7 +42,7 @@ export default function ViewMembers() {
         }
         const parsed = await Promise.all(responses.map((r) => r.json()));
         const [recordsData, membersData] = parsed;
-
+        
         setRecords(recordsData);
         console.log(recordsData);
         console.log(membersData);
@@ -76,7 +76,7 @@ export default function ViewMembers() {
       )
       if (!response.ok) {
         const errorText = await response.text();
-        alert(`Delete failed: ${response.status}\n${errorText}`)
+        alert(errorText)
         return
       }
       setMembers((prev) => prev.filter((member) => !selected.includes(member.memberID)))

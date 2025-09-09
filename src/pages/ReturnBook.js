@@ -46,13 +46,18 @@ function ReturnBook() {
       setStatusMessage("Error: " + err.message);
     }
   };
-
+  const formatDateTime = (dateTime) => {
+    if (!dateTime) return ''
+    dateTime = String(dateTime)
+    dateTime = dateTime.replace('T', ' ')
+    return dateTime;
+  }
   return (
     <div className="return-full">
       <h2>Return Book</h2>
-      {statusMessage && <p className="status">{statusMessage}</p>}
       <div className="return-container">
         <form onSubmit={handleSubmit} className="form">
+          <label>Enter book ID</label>
           <input
             type="number"
             placeholder="Enter Book ID"
@@ -77,7 +82,7 @@ function ReturnBook() {
               value={issuedBooks.filter(issue => !issue.returnDate)
                 .map(
                   i =>
-                    `BookID: ${i.bookId}, MemberID: ${i.memberId}, Issued: ${i.issueDate}, Not Returned`
+                    `BookID: ${i.bookId}, MemberID: ${i.memberId}, Issue Date: ${formatDateTime(i.issueDate)}`
                 ).join("\n")}
             />
           ) : (

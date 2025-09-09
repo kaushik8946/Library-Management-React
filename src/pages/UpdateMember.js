@@ -79,7 +79,7 @@ function UpdateMember() {
       alert("Address must be 2 to 500 characters");
       return false;
     }
-    const emailRegEx = /^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]{2,}$/;
+    const emailRegEx = /^[a-zA-Z0-9.]+@[a-zA-Z]+\.[a-zA-Z.]{2,}$/;
     if (!email || !emailRegEx.test(email)) {
       alert("Email should be in valid format");
       return false;
@@ -132,6 +132,7 @@ function UpdateMember() {
 
   return (
     <div className="form-container">
+      <h2>Update Member</h2>
       <form onSubmit={handleSubmit}>
         <label htmlFor="name">Name:</label>
         <input
@@ -210,7 +211,7 @@ function UpdateMember() {
         />
         <div className="button-row">
           <input type="submit" value="Update Member" />
-          <button type="button" className="back-button" onClick={handleBack}>Back to View Members</button>
+          <button type="button" className="back-button" onClick={handleBack}>Go Back</button>
         </div>
       </form>
     </div>
